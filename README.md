@@ -25,7 +25,14 @@ git clone https://github.com/Thoxy67/zig-dev-bin.git
 ```
 cd zig-dev-bin
 ```
-3. Build and install the package via makepkg:
+
+3. Build and install the package via makepkg or with builder (better):
+
+```
+chmod +x ./build.sh
+./build.sh
+```
+
 ```
 makepkg -si
 ```
