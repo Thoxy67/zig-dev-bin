@@ -2,7 +2,7 @@
 
 pkgname=zig-dev-bin
 epoch=1
-pkgver=0.11.0_dev.2938+e963793e3
+pkgver=0.11.0_dev.2964+e9cbdb2cf
 pkgrel=1
 pkgdesc="A general-purpose programming language and toolchain for maintaining robust, optimal, and reusable software"
 arch=('x86_64' 'aarch64')
