@@ -1,15 +1,34 @@
 #!/bin/bash
 
-echo "zig-dev-bin Archlinux PKGBUILD builder"
-echo
+echo ''
+echo '                                     z'
+echo '                                  zzz'
+echo '                             zzzzzz'
+echo 'zzzzzzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzz'
+echo 'zzzzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzz'
+echo 'zzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzz'
+echo 'zzzzz                zzzzzz      zzzzz'
+echo 'zzzzz              zzzzzz        zzzzz'
+echo 'zzzzz            zzzzzz          zzzzz'
+echo 'zzzzz          zzzzzz            zzzzz'
+echo 'zzzzz        zzzzzz              zzzzz'
+echo 'zzzzz      zzzzzz                zzzzz'
+echo 'zzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzz'
+echo 'zzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzzzz'
+echo 'zzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzzzzzz'
+echo '   zzzzzz'
+echo ' zzz'
+echo 'z'
+echo ''
 
-# Define a function to show the help message
+echo "⚡ zig-dev-bin Archlinux PKGBUILD builder"
+echo ''
+
 show_help() {
 	echo "Usage: $0 [--force]"
 	echo "    --force   Force the installation/update"
 }
 
-# Parse the arguments
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--force)
@@ -29,10 +48,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 install_zig() {
-	echo "Do you want to install/update Zig? (y/n)"
-	read -r answer
-
-	if [ "$answer" != "${answer#[Yy]}" ]; then
+	read -r -p "Do you want to install/update Zig? (y/n) " answer
+	if [[ "$answer" =~ ^[Yy]$ ]]; then
 		makepkg -si
 	else
 		exit 0
@@ -40,26 +57,25 @@ install_zig() {
 }
 
 json=$(curl -s https://ziglang.org/download/index.json)
-
 version=$(echo "$json" | jq -r '.master.version' | tr '-' '_')
 sed -i "s/^pkgver=.*$/pkgver=${version}/" PKGBUILD
 
 echo "Latest Zig version: v$version"
-if which zig >/dev/null; then
+if command -v zig >/dev/null; then
 	installed=$(zig version | tr '-' '_')
 	echo "Installed Zig Version: v$installed"
-	if [ "$installed" == "$version" ]; then
-		printf "\nYou have the latest version installed on your machine\n"
+	if [[ "$installed" == "$version" ]]; then
+		echo "You have the latest version installed on your machine"
 		if [[ "$force" ]]; then
 			install_zig
 		else
 			exit 0
 		fi
 	else
+		echo ""
+		echo "🚀 A new Zig version (v$version) is available!"
 		install_zig
 	fi
 else
 	install_zig
 fi
-
-
