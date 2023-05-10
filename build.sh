@@ -1,42 +1,40 @@
 #!/bin/bash
 
-echo ''
-echo '                                     z'
-echo '                                  zzz'
-echo '                             zzzzzz'
-echo 'zzzzzzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzz'
-echo 'zzzzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzz'
-echo 'zzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzz'
-echo 'zzzzz                zzzzzz      zzzzz'
-echo 'zzzzz              zzzzzz        zzzzz'
-echo 'zzzzz            zzzzzz          zzzzz'
-echo 'zzzzz          zzzzzz            zzzzz'
-echo 'zzzzz        zzzzzz              zzzzz'
-echo 'zzzzz      zzzzzz                zzzzz'
-echo 'zzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzz'
-echo 'zzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzzzz'
-echo 'zzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzzzzzz'
-echo '   zzzzzz'
-echo ' zzz'
-echo 'z'
-echo ''
+echo -e '\e[93m                                     z'
+echo -e '                                  zzz'
+echo -e '                             zzzzzz\e[90m'
+echo -e '\e[90mzzzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzz'
+echo -e '\e[90mzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzz'
+echo -e '\e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
+echo -e '\e[90mzzzzz                \e[93mzzzzzz      \e[90mzzzzz'
+echo -e '\e[90mzzzzz              \e[93mzzzzzz        \e[90mzzzzz'
+echo -e '\e[90mzzzzz            \e[93mzzzzzz          \e[90mzzzzz'
+echo -e '\e[90mzzzzz          \e[93mzzzzzz            \e[90mzzzzz'
+echo -e '\e[90mzzzzz        \e[93mzzzzzz              \e[90mzzzzz'
+echo -e '\e[90mzzzzz      \e[93mzzzzzz                \e[90mzzzzz'
+echo -e '\e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
+echo -e '\e[90mzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzz'
+echo -e '\e[90mzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzzzz'
+echo -e '   \e[93mzzzzzz'
+echo -e ' zzz'
+echo -e 'z\e[0m'
 
-echo "⚡ zig-dev-bin Archlinux PKGBUILD builder"
-echo ''
+echo -e "\n⚡ \e[1mzig-dev-bin\e[0m Archlinux PKGBUILD builder\n"
 
 show_help() {
-	echo "Usage: $0 [--force]"
-	echo "    --force   Force the installation/update"
+	echo "Usage: $0 [-f, --force]"
+	echo -e "\t-f, --force\tForce the installation/update"
+  echo -e "\t-h, --help\tPrint help"
 }
 
 if ! command -v pacman >/dev/null 2>&1; then
-  echo -e "\033[1;31mError:\033[0m This script is only for Arch Linux systems" >&2
+  echo -e "\033[1;31mError:\033[0m \e[1mBy the way,\e[0m this script is only intended for \e[1mArch Linux\e[0m systems. ❤️" >&2
   exit 1
 fi
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-	--force)
+	-f | --force)
 		force=1
 		shift
 		;;
@@ -52,28 +50,47 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
-exit_clean() {
-  echo "Clean up install files..."
-  sleep 2
+abord() {
+  echo ""
+  sleep 1
+  clean
+  echo -e "❌ Installation aborted !"
+  exit 1
+}
+
+clean() {
+  echo -e "🧹 Clean up install files..."
+  if [[ "$remote_url" != "https://github.com/Thoxy67/zig-dev-bin"* ]]; then
+    rm -rf ./PKGBUILD
+    cd ..
+    rm -rf ./zig_install_tmp
+  fi
   rm -rf ./zig-dev-bin-*.tar.zst
-  rm -rf ./PKGBUILD
   rm -rf ./pkg
-  echo "Done!"
+}
+
+succeed() {
+  echo ""
+  sleep 2
+  clean
+  echo "✔️  installation succeed"
+  exit 0
 }
 
 install_zig() {
-	read -r -p "Do you want to install/update Zig? (y/n) " answer
+  read -r -p "📦 Do you want to install/update Zig? (y/n) " answer
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
     if [ -f "$FILE" ]; then
+      sed -i "s/^pkgver=.*$/pkgver=${version}/" PKGBUILD
       makepkg -si
     else
-      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "PKGBUILD" &
-      wait
-      trap exit_clean SIGINT
+      mkdir ./zig_install_tmp
+      cd ./zig_install_tmp
+      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "PKGBUILD"
+      sed -i "s/^pkgver=.*$/pkgver=${version}/" PKGBUILD
       makepkg -si
-      exit_clean() 
+      succeed
     fi
-    makepkg -si
 	else
 		exit 0
 	fi
@@ -81,24 +98,27 @@ install_zig() {
 
 json=$(curl -s https://ziglang.org/download/index.json)
 version=$(echo "$json" | jq -r '.master.version' | tr '-' '_')
-sed -i "s/^pkgver=.*$/pkgver=${version}/" PKGBUILD
 
 echo "Latest Zig version: v$version"
 if command -v zig >/dev/null; then
 	installed=$(zig version | tr '-' '_')
-	echo "Installed Zig Version: v$installed"
+	echo -e "Installed Zig Version: \e[1mv$installed\e[0m"
 	if [[ "$installed" == "$version" ]]; then
-		echo "You have the latest version installed on your machine"
-		if [[ "$force" ]]; then
+		echo -e "\n\e[0;42mYou have the latest Zig version installed on your machine\033[0m"
+    if [[ "$force" ]]; then
+      trap abord SIGINT
 			install_zig
 		else
+      echo -e "\033[36mToo force install just pass argument : \e[0m--force\n"
 			exit 0
 		fi
 	else
-		echo ""
-		echo "🚀 A new Zig version (v$version) is available!"
-		install_zig
+    echo -e "\n\e[33m🆕 A new Zig version (v$version) is available!\e[0m\n"
+    trap abord SIGINT
+    install_zig
 	fi
 else
+  echo -e "\e[0;43mIt seems like Zig is not installed on your computer.\e[0m\n"
+  trap abord SIGINT
 	install_zig
 fi
