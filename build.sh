@@ -80,7 +80,7 @@ succeed() {
 install_zig() {
   read -r -p "📦 Do you want to install/update Zig? (y/n) " answer
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
-    if [ -f "$FILE" ]; then
+    if [ -f "PKGBUILD" ]; then
       sed -i "s/^pkgver=.*$/pkgver=${version}/" PKGBUILD
       makepkg -si
     else
