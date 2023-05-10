@@ -29,6 +29,11 @@ show_help() {
 	echo "    --force   Force the installation/update"
 }
 
+if ! command -v pacman >/dev/null 2>&1; then
+  echo -e "\033[1;31mError:\033[0m This script is only for Arch Linux systems" >&2
+  exit 1
+fi
+
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--force)
@@ -47,10 +52,28 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
+exit_clean() {
+  echo "Clean up install files..."
+  sleep 2
+  rm -rf ./zig-dev-bin-*.tar.zst
+  rm -rf ./PKGBUILD
+  rm -rf ./pkg
+  echo "Done!"
+}
+
 install_zig() {
 	read -r -p "Do you want to install/update Zig? (y/n) " answer
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
-		makepkg -si
+    if [ -f "$FILE" ]; then
+      makepkg -si
+    else
+      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "PKGBUILD" &
+      wait
+      trap exit_clean SIGINT
+      makepkg -si
+      exit_clean() 
+    fi
+    makepkg -si
 	else
 		exit 0
 	fi

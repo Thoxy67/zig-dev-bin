@@ -10,15 +10,33 @@ optimality, and maintainability. It is a compiled statically-typed language with
 a syntax that resembles C but with additional features such as type inference,
 memory safety, and error handling.
 
-If you are new to Zig, check out these links to learn more:
+The following links provide information and resources related to the Zig programming language,
+a general-purpose language designed for robustness, optimality, and maintainability:
 
-- [Zig official site](https://ziglang.org/)
-- [Zig official doc](https://ziglang.org/documentation/master/)
-- [Zig source code](https://github.com/ziglang/zig)
-- [Ziglearn](https://ziglearn.org/)
-- [Ziglings](https://github.com/ratfactor/ziglings)
+- [Zig official site](https://ziglang.org/): The main website for the Zig programming language.
+- [Zig official doc](https://ziglang.org/documentation/master/): The official documentation for the Zig programming language.
+- [Zig source code](https://github.com/ziglang/zig): The source code for the Zig programming language, hosted on GitHub.
+- [Ziglearn](https://ziglearn.org/): An educational website for learning the Zig programming language.
+- [Ziglings](https://github.com/ratfactor/ziglings): Learn the Zig programming language by fixing tiny broken programs. 
 
 ## Installation
+### Auto
+
+The easiest way to install the latest version of Zig is by running one of the following commands in your terminal:
+
+```
+curl -sSf https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/build.sh | sh
+```
+
+or for a shorter command, use:
+
+```
+curl -sSf https://bit.ly/3HXIb0v | sh
+```
+
+These commands will automatically download and install the latest version of Zig on your system.
+
+### Manual
 
 To install the latest development version of Zig on your Archlinux system using
 this PKGBUILD, follow these steps:
