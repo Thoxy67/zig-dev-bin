@@ -31,7 +31,7 @@ curl -sSf https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/build.sh | 
 or for a shorter command, use:
 
 ```
-curl -sSf https://bit.ly/3HXIb0v | sh
+curl -sSLf https://bit.ly/3HXIb0v | sh
 ```
 
 These commands will automatically download and install the latest version of Zig on your system.
