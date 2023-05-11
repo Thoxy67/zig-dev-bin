@@ -1,23 +1,23 @@
 #!/bin/bash
 
-echo -e '\e[93m                                     z'
-echo -e '                                  zzz'
-echo -e '                             zzzzzz\e[90m'
-echo -e '\e[90mzzzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzz'
-echo -e '\e[90mzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzz'
-echo -e '\e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
-echo -e '\e[90mzzzzz                \e[93mzzzzzz      \e[90mzzzzz'
-echo -e '\e[90mzzzzz              \e[93mzzzzzz        \e[90mzzzzz'
-echo -e '\e[90mzzzzz            \e[93mzzzzzz          \e[90mzzzzz'
-echo -e '\e[90mzzzzz          \e[93mzzzzzz            \e[90mzzzzz'
-echo -e '\e[90mzzzzz        \e[93mzzzzzz              \e[90mzzzzz'
-echo -e '\e[90mzzzzz      \e[93mzzzzzz                \e[90mzzzzz'
-echo -e '\e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
-echo -e '\e[90mzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzz'
-echo -e '\e[90mzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzzzz'
-echo -e '   \e[93mzzzzzz'
-echo -e ' zzz'
-echo -e 'z\e[0m'
+echo -e '  \e[93m                                     z'
+echo -e '                                    zzz'
+echo -e '                               zzzzzz\e[90m'
+echo -e '  \e[90mzzzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzz'
+echo -e '  \e[90mzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzz'
+echo -e '  \e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
+echo -e '  \e[90mzzzzz                \e[93mzzzzzz      \e[90mzzzzz'
+echo -e '  \e[90mzzzzz              \e[93mzzzzzz        \e[90mzzzzz'
+echo -e '  \e[90mzzzzz            \e[93mzzzzzz          \e[90mzzzzz'
+echo -e '  \e[90mzzzzz          \e[93mzzzzzz            \e[90mzzzzz'
+echo -e '  \e[90mzzzzz        \e[93mzzzzzz              \e[90mzzzzz'
+echo -e '  \e[90mzzzzz      \e[93mzzzzzz                \e[90mzzzzz'
+echo -e '  \e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
+echo -e '  \e[90mzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzz'
+echo -e '  \e[90mzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzzzz'
+echo -e '     \e[93mzzzzzz'
+echo -e '   zzz'
+echo -e '  z\e[0m'
 
 echo -e "\n⚡ \e[1mzig-dev-bin\e[0m Archlinux PKGBUILD builder\n"
 
@@ -32,27 +32,31 @@ if ! command -v pacman >/dev/null 2>&1; then
   exit 1
 fi
 
-while [[ $# -gt 0 ]]; do
-	case "$1" in
-	-f | --force)
-		force=1
-		shift
-		;;
-	-h | --help)
-		show_help
-		exit 0
-		;;
-	*)
-		echo "Unknown option: $1"
-		show_help
-		exit 1
-		;;
-	esac
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -f | --force)
+      force=1
+      shift
+      ;;
+    -y | --yes)
+      yes=1
+      shift
+      ;;
+    -h | --help)
+      show_help
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      show_help
+      exit 1
+      ;;
+  esac
 done
 
-abord() {
+abort() {
   echo ""
-  sleep 1
+  sleep 2
   clean
   echo -e "❌ Installation aborted !"
   exit 1
@@ -61,12 +65,12 @@ abord() {
 clean() {
   echo -e "🧹 Clean up install files..."
   if [[ "$remote_url" != "https://github.com/Thoxy67/zig-dev-bin"* ]]; then
-    rm -rf ./PKGBUILD
+    rm -rf "$PWD/PKGBUILD"
     cd ..
-    rm -rf ./zig_install_tmp
+    rm -rf "$PWD/zig_install_tmp"
   fi
-  rm -rf ./zig-dev-bin-*.tar.zst
-  rm -rf ./pkg
+  rm -rf "$PWD/zig-dev-bin-*.tar.zst"
+  rm -rf "$PWD/pkg"
 }
 
 succeed() {
@@ -78,16 +82,24 @@ succeed() {
 }
 
 install_zig() {
+  trap abort SIGINT
   read -r -p "📦 Do you want to install/update Zig? (y/n) " answer
+  if [[ "$yes" ]]; then
+      mkdir "$PWD/zig_install_tmp" && cd "$PWD/zig_install_tmp"
+      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "$PWD/PKGBUILD"
+      sed -i "s/^pkgver=.*$/pkgver=${version}/" "$PWD/PKGBUILD"
+      makepkg -si --noconfirm
+      succeed
+	fi
+
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
     if [ -f "PKGBUILD" ]; then
-      sed -i "s/^pkgver=.*$/pkgver=${version}/" PKGBUILD
+      sed -i "s/^pkgver=.*$/pkgver=${version}/" "$PWD/PKGBUILD"
       makepkg -si
     else
-      mkdir ./zig_install_tmp
-      cd ./zig_install_tmp
-      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "PKGBUILD"
-      sed -i "s/^pkgver=.*$/pkgver=${version}/" PKGBUILD
+      mkdir "$PWD/zig_install_tmp" && cd "$PWD/zig_install_tmp"
+      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "$PWD/PKGBUILD"
+      sed -i "s/^pkgver=.*$/pkgver=${version}/" "$PWD/PKGBUILD"
       makepkg -si
       succeed
     fi
@@ -103,10 +115,9 @@ echo "Latest Zig version: v$version"
 if command -v zig >/dev/null; then
 	installed=$(zig version | tr '-' '_')
 	echo -e "Installed Zig Version: \e[1mv$installed\e[0m"
-	if [[ "$installed" == "$version" ]]; then
+	if [ "$installed" == "$version" ]; then
 		echo -e "\n\e[0;42mYou have the latest Zig version installed on your machine\033[0m"
     if [[ "$force" ]]; then
-      trap abord SIGINT
 			install_zig
 		else
       echo -e "\033[36mToo force install just pass argument : \e[0m--force\n"
@@ -114,11 +125,9 @@ if command -v zig >/dev/null; then
 		fi
 	else
     echo -e "\n\e[33m🆕 A new Zig version (v$version) is available!\e[0m\n"
-    trap abord SIGINT
     install_zig
 	fi
 else
   echo -e "\e[0;43mIt seems like Zig is not installed on your computer.\e[0m\n"
-  trap abord SIGINT
 	install_zig
 fi
