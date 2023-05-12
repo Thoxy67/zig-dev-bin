@@ -25,13 +25,13 @@ a general-purpose language designed for robustness, optimality, and maintainabil
 The easiest way to install the latest version of Zig is by running one of the following commands in your terminal:
 
 ```
-curl -sSf https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/build.sh | sh
+curl -sSf https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/build.sh | sh -s -- -y
 ```
 
 or for a shorter command, use:
 
 ```
-curl -sSLf https://bit.ly/3HXIb0v | sh
+curl -sSLf https://bit.ly/3HXIb0v | sh -s -- -y
 ```
 
 These commands will automatically download and install the latest version of Zig on your system.
