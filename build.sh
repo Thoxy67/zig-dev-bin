@@ -64,7 +64,8 @@ abort() {
 
 clean() {
   echo -e "🧹 Clean up install files..."
-  if [[ "$remote_url" != "https://github.com/Thoxy67/zig-dev-bin"* ]]; then
+  remote_url=$(git remote get-url origin)
+  if [[ "$remote_url" != "https://github.com/Thoxy67/zig-dev-bin"* ]] && [[ "$remote_url" != "ssh://git@github.com/Thoxy67/zig-dev-bin"* ]]  ; then
     rm -rf "$PWD/PKGBUILD"
     cd ..
     rm -rf "$PWD/zig_install_tmp"
