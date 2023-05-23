@@ -2,7 +2,7 @@
 
 pkgname=zig-dev-bin
 epoch=1
-pkgver=0.11.0_dev.3132+465272921
+pkgver=0.11.0_dev.3277+a0652fb93
 pkgrel=1
 pkgdesc="A general-purpose programming language and toolchain for maintaining robust, optimal, and reusable software"
 arch=('x86_64' 'aarch64')
@@ -16,26 +16,24 @@ shasums=(
 	'SKIP'
 )
 
-plain ''
-plain '                                     z'
-plain '                                  zzz'
-plain '                             zzzzzz'
-plain 'zzzzzzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzz'
-plain 'zzzzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzz'
-plain 'zzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzz'
-plain 'zzzzz                zzzzzz      zzzzz'
-plain 'zzzzz              zzzzzz        zzzzz'
-plain 'zzzzz            zzzzzz          zzzzz'
-plain 'zzzzz          zzzzzz            zzzzz'
-plain 'zzzzz        zzzzzz              zzzzz'
-plain 'zzzzz      zzzzzz                zzzzz'
-plain 'zzzzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzz'
-plain 'zzzzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzzzz'
-plain 'zzz  zzzzzzzzzzzzzzzzzzzz  zzzzzzzzzzz'
-plain '   zzzzzz'
-plain ' zzz'
-plain 'z'
-plain ''
+echo -e '  \e[93m                                     z'
+echo -e '                                    zzz'
+echo -e '                               zzzzzz\e[90m'
+echo -e '  \e[90mzzzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzz'
+echo -e '  \e[90mzzzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzz'
+echo -e '  \e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
+echo -e '  \e[90mzzzzz                \e[93mzzzzzz      \e[90mzzzzz'
+echo -e '  \e[90mzzzzz              \e[93mzzzzzz        \e[90mzzzzz'
+echo -e '  \e[90mzzzzz            \e[93mzzzzzz          \e[90mzzzzz'
+echo -e '  \e[90mzzzzz          \e[93mzzzzzz            \e[90mzzzzz'
+echo -e '  \e[90mzzzzz        \e[93mzzzzzz              \e[90mzzzzz'
+echo -e '  \e[90mzzzzz      \e[93mzzzzzz                \e[90mzzzzz'
+echo -e '  \e[90mzzzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzz'
+echo -e '  \e[90mzzzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzz'
+echo -e '  \e[90mzzz  \e[93mzzzzzzzzzzzzzzzzzzzz  \e[90mzzzzzzzzzzz'
+echo -e '     \e[93mzzzzzz'
+echo -e '   zzz'
+echo -e '  z\e[0m'
 
 # https://ziglang.org/download/
 ZIG_MINISIGN_KEY="RWSGOq2NVecA2UPNdBUZykf1CCb147pkmdtYxgb3Ti+JO/wCYvhbAb/U"
