@@ -63,7 +63,7 @@ chmod +x ./build.sh
 Alternatively, you can build and install the package via makepkg:
 
 ```
-makepkg -si
+makepkg -fsi
 ```
 
 After installation, you can start using Zig by running the `zig` command in your
