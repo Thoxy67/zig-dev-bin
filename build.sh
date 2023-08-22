@@ -64,14 +64,9 @@ abort() {
 
 clean() {
   echo -e "🧹 Clean up install files..."
-  remote_url=$(git remote get-url origin)
-  if [[ "$remote_url" != "https://github.com/Thoxy67/zig-dev-bin"* ]] && [[ "$remote_url" != "ssh://git@github.com/Thoxy67/zig-dev-bin"* ]]  ; then
-    rm -rf "$PWD/PKGBUILD"
-    cd ..
-    rm -rf "$PWD/zig_install_tmp"
-  fi
-  rm -rf "$PWD/zig-dev-bin-*.tar.zst"
-  rm -rf "$PWD/pkg"
+  rm -rf $PWD/zig_install_tmp
+  rm -rf $PWD/zig-dev-bin-*.tar.zst
+  rm -rf $PWD/pkg
 }
 
 succeed() {
@@ -85,23 +80,15 @@ succeed() {
 install_zig() {
   trap abort SIGINT
   read -r -p "📦 Do you want to install/update Zig? (y/n) " answer
-  if [[ "$yes" ]]; then
-      mkdir "$PWD/zig_install_tmp" && cd "$PWD/zig_install_tmp"
-      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "$PWD/PKGBUILD"
-      sed -i "s/^pkgver=.*$/pkgver=${version}/" "$PWD/PKGBUILD"
-      makepkg -si --noconfirm
-      succeed
-	fi
-
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
     if [ -f "PKGBUILD" ]; then
-      sed -i "s/^pkgver=.*$/pkgver=${version}/" "$PWD/PKGBUILD"
-      makepkg -si
+      makepkg -si --noconfirm
+      succeed
     else
       mkdir "$PWD/zig_install_tmp" && cd "$PWD/zig_install_tmp"
       wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "$PWD/PKGBUILD"
-      sed -i "s/^pkgver=.*$/pkgver=${version}/" "$PWD/PKGBUILD"
-      makepkg -si
+      makepkg -si --noconfirm
+      cd ..
       succeed
     fi
 	else

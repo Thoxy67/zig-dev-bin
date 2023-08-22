@@ -1,14 +1,15 @@
 # Contributor: Thoxy <thi.hur67@gmail.com>
 
+ZIG_VERSION_INDEX=$(curl -sS "https://ziglang.org/download/index.json")
 pkgname=zig-dev-bin
 epoch=1
-pkgver=0.11.0_dev.3277+a0652fb93
+pkgver=$( echo $ZIG_VERSION_INDEX | jq -r .master.version | sed 's/-/_/')
 pkgrel=1
 pkgdesc="A general-purpose programming language and toolchain for maintaining robust, optimal, and reusable software"
 arch=('x86_64' 'aarch64')
 url="https://ziglang.org/"
 license=('MIT')
-makedepends=(curl jq minisign)
+makedepends=(curl jq minisign tar sed)
 options=('!strip')
 provides=('zig')
 conflicts=('zig')
@@ -38,34 +39,19 @@ echo -e '  z\e[0m'
 # https://ziglang.org/download/
 ZIG_MINISIGN_KEY="RWSGOq2NVecA2UPNdBUZykf1CCb147pkmdtYxgb3Ti+JO/wCYvhbAb/U"
 
-# Prints a warning message to stderr
 warning() {
 	echo -en "\e[33;1mWARNING\e[0m: " >&2
 	echo "$@" >&2
 }
 
-pkgver() {
-	local index_file="${srcdir}/zig-version-index.json"
-	# Invalidate old verison-index.json
-	#
-	# If we put version-index in `source` then it would be cached...
-	if [[ -x "$index_file" ]]; then
-		rm "$index_file"
-	fi
-	curl -sS "https://ziglang.org/download/index.json" -o "$index_file"
-	jq -r .master.version "$index_file" | sed 's/-/_/'
-}
-
 prepare() {
-	local newver="$(pkgver)"
 	pushd "${srcdir}" >/dev/null
-	local index_file="zig-version-index.json"
-	local newurl="$(jq -r ".master.\"${CARCH}-linux\".tarball" $index_file)"
+	local newurl="$(echo $ZIG_VERSION_INDEX | jq -r ".master.\"${CARCH}-linux\".tarball")"
 	local newurl_sig="$newurl.minisig"
 	local newfile="zig-linux-${CARCH}-${newver}.tar.xz"
 	local newfile_sig="$newfile.minisig"
 	source+=("${newfile}:${newurl}" "${newfile_sig}:${newurl_sig}")
-	local expected_hash="$(jq -r ".master.\"${CARCH}-linux\".shasum" "$index_file")"
+	local expected_hash="$(echo $ZIG_VERSION_INDEX | jq -r ".master.\"${CARCH}-linux\".shasum")"
 	sha256sums+=("$expected_hash" "SKIP")
 	if [[ -f "$newfile" && -f "$newfile_sig" ]]; then
 		echo "Reusing existing $newfile (and signature)"
