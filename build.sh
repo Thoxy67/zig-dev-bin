@@ -21,76 +21,85 @@ echo -e '  z\e[0m'
 
 echo -e "\n⚡ \e[1mzig-dev-bin\e[0m Archlinux PKGBUILD builder\n"
 
+if ! command -v pacman >/dev/null 2>&1; then
+	echo -e "\033[1;31mError:\033[0m \e[1mThis script is only intended for \e[1mArch Linux\e[0m systems. ❤️" >&2
+	exit 1
+fi
+
 show_help() {
 	echo "Usage: $0 [-f, --force]"
 	echo -e "\t-f, --force\tForce the installation/update"
-  echo -e "\t-h, --help\tPrint help"
+	echo -e "\t-y, --yes\tDo not ask for confirmation"
+	echo -e "\t-h, --help\tPrint help"
 }
-
-if ! command -v pacman >/dev/null 2>&1; then
-  echo -e "\033[1;31mError:\033[0m \e[1mBy the way,\e[0m this script is only intended for \e[1mArch Linux\e[0m systems. ❤️" >&2
-  exit 1
-fi
 
 while [ $# -gt 0 ]; do
-  case "$1" in
-    -f | --force)
-      force=1
-      shift
-      ;;
-    -y | --yes)
-      yes=1
-      shift
-      ;;
-    -h | --help)
-      show_help
-      exit 0
-      ;;
-    *)
-      echo "Unknown option: $1"
-      show_help
-      exit 1
-      ;;
-  esac
+	case "$1" in
+	-f | --force)
+		force=1
+		shift
+		;;
+	-y | --yes)
+		yes=1
+		shift
+		;;
+	-h | --help)
+		show_help
+		exit 0
+		;;
+	*)
+		echo "Unknown option: $1"
+		show_help
+		exit 1
+		;;
+	esac
 done
 
-abort() {
-  echo ""
-  sleep 2
-  clean
-  echo -e "❌ Installation aborted !"
-  exit 1
-}
-
 clean() {
-  echo -e "🧹 Clean up install files..."
-  rm -rf $PWD/zig_install_tmp
-  rm -rf $PWD/zig-dev-bin-*.tar.zst
-  rm -rf $PWD/pkg
+	echo -e "🧹 Clean up install files..."
+	rm -rf "$PWD/zig_install_tmp"
+	rm -rf "$PWD/zig-dev-bin-*.tar.zst"
+	rm -rf "$PWD/pkg"
 }
 
 succeed() {
-  echo ""
-  sleep 2
-  clean
-  echo "✔️  installation succeed"
-  exit 0
+	echo ""
+	sleep 2
+	clean
+	echo "✔️  Installation succeeded"
+	exit 0
+}
+
+abort() {
+	echo ""
+	sleep 2
+	clean
+	echo -e "❌ Installation aborted !"
+	exit 1
 }
 
 install_zig() {
-  trap abort SIGINT
-  read -r -p "📦 Do you want to install/update Zig? (y/n) " answer
+	trap abort SIGINT
+	if [[ "$yes" != 1 ]]; then
+		read -r -p "📦 Do you want to install/update Zig? (Y/n) " -i "y" answer
+		# adopt the default, if 'enter' given
+		answer="${answer:-y}"
+		# change to lower case to simplify following if
+		answer="${answer,,}"
+	else
+		answer="y"
+	fi
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
-    if [ -f "PKGBUILD" ]; then
-      makepkg -si --noconfirm
-      succeed
-    else
-      mkdir "$PWD/zig_install_tmp" && cd "$PWD/zig_install_tmp"
-      wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "$PWD/PKGBUILD"
-      makepkg -si --noconfirm
-      cd ..
-      succeed
-    fi
+		if [ -f "PKGBUILD" ]; then
+			makepkg -si --noconfirm
+			succeed
+		else
+			mkdir "$PWD/zig_install_tmp" && (cd "$PWD/zig_install_tmp" || abort)
+			wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "$PWD/PKGBUILD"
+			makepkg -si --noconfirm
+			cd ..
+			succeed
+		fi
 	else
 		exit 0
 	fi
@@ -105,17 +114,17 @@ if command -v zig >/dev/null; then
 	echo -e "Installed Zig Version: \e[1mv$installed\e[0m"
 	if [ "$installed" == "$version" ]; then
 		echo -e "\n\e[0;42mYou have the latest Zig version installed on your machine\033[0m"
-    if [[ "$force" ]]; then
+		if [[ "$force" ]]; then
 			install_zig
 		else
-      echo -e "\033[36mToo force install just pass argument : \e[0m--force\n"
+			echo -e "\033[36mTo force install, pass the argument: \e[0m--force\n"
 			exit 0
 		fi
 	else
-    echo -e "\n\e[33m🆕 A new Zig version (v$version) is available!\e[0m\n"
-    install_zig
+		echo -e "\n\e[33m🆕 A new Zig version (v$version) is available!\e[0m\n"
+		install_zig
 	fi
 else
-  echo -e "\e[0;43mIt seems like Zig is not installed on your computer.\e[0m\n"
+	echo -e "\e[0;43mZig is not installed on your computer.\e[0m\n"
 	install_zig
 fi
