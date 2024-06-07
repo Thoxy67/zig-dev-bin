@@ -27,22 +27,16 @@ if ! command -v pacman >/dev/null 2>&1; then
 fi
 
 show_help() {
-	echo "Usage: $0 [-f, --force]"
+	echo "Usage: $0 [-f, --force] [-y, --yes] [-h, --help]"
 	echo -e "\t-f, --force\tForce the installation/update"
 	echo -e "\t-y, --yes\tDo not ask for confirmation"
 	echo -e "\t-h, --help\tPrint help"
 }
 
-while [ $# -gt 0 ]; do
+while [[ $# -gt 0 ]]; do
 	case "$1" in
-	-f | --force)
-		force=1
-		shift
-		;;
-	-y | --yes)
-		yes=1
-		shift
-		;;
+	-f | --force) force=1 ;;
+	-y | --yes) yes=1 ;;
 	-h | --help)
 		show_help
 		exit 0
@@ -53,13 +47,12 @@ while [ $# -gt 0 ]; do
 		exit 1
 		;;
 	esac
+	shift
 done
 
 clean() {
 	echo -e "🧹 Clean up install files..."
-	rm -rf "$PWD/zig_install_tmp"
-	rm -rf "$PWD/zig-dev-bin-*.tar.zst"
-	rm -rf "$PWD/pkg"
+	rm -rf "$PWD/zig_install_tmp" "$PWD/zig-dev-bin-*.tar.zst" "$PWD/pkg"
 }
 
 succeed() {
@@ -82,24 +75,19 @@ install_zig() {
 	trap abort SIGINT
 	if [[ "$yes" != 1 ]]; then
 		read -r -p "📦 Do you want to install/update Zig? (Y/n) " -i "y" answer
-		# adopt the default, if 'enter' given
 		answer="${answer:-y}"
-		# change to lower case to simplify following if
 		answer="${answer,,}"
 	else
 		answer="y"
 	fi
 	if [[ "$answer" =~ ^[Yy]$ ]]; then
-		if [ -f "PKGBUILD" ]; then
-			makepkg -si --noconfirm
-			succeed
-		else
+		if [[ ! -f "PKGBUILD" ]]; then
 			mkdir "$PWD/zig_install_tmp" && (cd "$PWD/zig_install_tmp" || abort)
 			wget -q "https://raw.githubusercontent.com/Thoxy67/zig-dev-bin/main/PKGBUILD" -O "$PWD/PKGBUILD"
-			makepkg -si --noconfirm
-			cd ..
-			succeed
 		fi
+		makepkg -si --noconfirm
+		cd .. || exit
+		succeed
 	else
 		exit 0
 	fi
@@ -112,14 +100,9 @@ echo "Latest Zig version: v$version"
 if command -v zig >/dev/null; then
 	installed=$(zig version | tr '-' '_')
 	echo -e "Installed Zig Version: \e[1mv$installed\e[0m"
-	if [ "$installed" == "$version" ]; then
+	if [[ "$installed" == "$version" ]]; then
 		echo -e "\n\e[0;42mYou have the latest Zig version installed on your machine\033[0m"
-		if [[ "$force" ]]; then
-			install_zig
-		else
-			echo -e "\033[36mTo force install, pass the argument: \e[0m--force\n"
-			exit 0
-		fi
+		[[ "$force" ]] && install_zig || echo -e "\033[36mTo force install, pass the argument: \e[0m--force\n"
 	else
 		echo -e "\n\e[33m🆕 A new Zig version (v$version) is available!\e[0m\n"
 		install_zig
